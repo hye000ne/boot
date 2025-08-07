@@ -1,0 +1,61 @@
+# IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+
+# OS별 불필요 파일
+.DS_Store
+Thumbs.db
+
+# Java 빌드
+/bin/
+/build/
+/target/
+
+# 로그, 임시, 의존성 캐시
+*.log
+*.tmp
+*.swp
+
+# Maven, Gradle 캐시/최종 산출물
+.mvn/
+!/.mvn/wrapper/maven-wrapper.jar
+**/mvnw*
+**/gradlew*
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+# (Gradle 빌드시 자동으로 생성되는 파일들 제외)
+
+# IDE 툴(이클립스 등) 및 VSCode
+*.class
+*.pyc
+*.pyo
+*.vs/
+.vscode/
+*.launch
+.project
+.classpath
+.settings/
+factorypath/
+
+# test 커버리지, 리포트
+/test-output/
+jacoco.exec
+
+# 환경/보안 파일
+.env
+.env.*
+application-*.yml
+application-*.properties
+
+# Spring Boot Local DB
+*.h2.db
+*.mv.db
+*.db
+
+# Mac 시스템
+.AppleDouble
+.LSOverride
