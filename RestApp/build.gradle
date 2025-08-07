@@ -30,6 +30,11 @@ dependencies {
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // JPA (Java Persistence API) 자바의 공식 ORM(Hibernate)
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa:3.5.4")
+    implementation('com.mysql:mysql-connector-j:8.2.0')
+    implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3")
 }
 
 tasks.named('test') {

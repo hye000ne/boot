@@ -1,0 +1,31 @@
+### 게시물 목록
+GET http://localhost:8888/shop/boards
+Content-Type: application/json
+
+### 게시물 등록
+POST http://localhost:8888/shop/boards
+Content-Type: application/json
+
+{
+    "title" : "안녕하세요",
+    "writer" : "박혜원",
+    "content" : "등록 테스트"
+}
+
+### 게시물 1건 조회
+GET http://localhost:8888/shop/boards/1
+Content-Type: application/json
+
+### 게시물 수정
+PUT http://localhost:8888/shop/boards/1
+Content-Type: application/json
+
+{
+    "title" : "안녕하세요2",
+    "writer" : "박혜원2",
+    "content" : "등록 테스트2"
+}
+
+### 게시물 삭제
+DELETE http://localhost:8888/shop/boards/1
+Content-Type: application/json
