@@ -8,6 +8,6 @@ public interface BoardService {
     public List selectAll();
     public Board  selectById(int board_id);
     public void insert(Board board);
-    public Board update(Board board);
+    public int update(Board board);
     public void delete(int board_id);
 }

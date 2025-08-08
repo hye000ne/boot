@@ -13,19 +13,20 @@ Content-Type: application/json
 }
 
 ### 게시물 1건 조회
-GET http://localhost:8888/shop/boards/1
+GET http://localhost:8888/shop/boards/2
 Content-Type: application/json
 
 ### 게시물 수정
-PUT http://localhost:8888/shop/boards/1
+PUT http://localhost:8888/shop/boards/2
 Content-Type: application/json
 
 {
-    "title" : "안녕하세요2",
-    "writer" : "박혜원2",
-    "content" : "등록 테스트2"
+    "title" : "안녕하세32",
+    "writer" : "박혜원32",
+    "content" : "등록 테스트32"
 }
 
 ### 게시물 삭제
 DELETE http://localhost:8888/shop/boards/1
 Content-Type: application/json
+

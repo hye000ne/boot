@@ -39,9 +39,15 @@ public class JpaBoardDAO  implements BoardDAO{
 
     @Override
     @Transactional
-    public Board update(Board board) {
-        return em.merge(board);
+    public int update(Board board) {
+          return 0;
     }
+
+//    @Override
+//    @Transactional
+//    public Board update(Board board) {
+//          return em.merge(board);
+//    }
 
     @Override
     @Transactional

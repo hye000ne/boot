@@ -37,10 +37,9 @@ public class MyBatisBoardDAO implements BoardDAO{
     }
 
     @Override
-    public Board update(Board board) throws DataAccessException {
+    public int update(Board board) throws DataAccessException {
         try {
-            boardMapper.update(board);
-            return board;
+            return boardMapper.update(board);
         } catch (DataAccessException e) {
             throw new BoardException("글 수정 실패", e);
         }

@@ -39,7 +39,7 @@ public class BoardServiceImpl implements  BoardService {
     }
 
     @Override
-    public Board update(Board board) throws DataAccessException {
+    public int update(Board board) throws DataAccessException {
         try {
             return boardDAO.update(board);
         } catch (DataAccessException e) {

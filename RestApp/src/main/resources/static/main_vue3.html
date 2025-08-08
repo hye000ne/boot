@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Simple Board (Bootstrap)</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .aside {
+            min-width: 220px;
+            max-width: 260px;
+        }
+
+        .post-title {
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .post-meta {
+            font-size: 0.85rem;
+            color: #888;
+        }
+
+        .vh-85 {
+            min-height: 85vh;
+        }
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+</head>
+
+<body>
+    <div class="container-fluid py-4" id="app">
+        <div class="row justify-content-center">
+            <!-- 왼쪽 등록 폼 -->
+            <aside class="col-md-2 col-sm-4 mb-4 aside">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">게시글 등록</h5>
+                        <form id="form1" class="board-form">
+                            <div class="mb-2">
+                                <label for="title" class="form-label">제목</label>
+                                <input type="text" id="title" name="title" class="form-control form-control-sm"
+                                    required>
+                            </div>
+                            <div class="mb-2">
+                                <label for="writer" class="form-label">작성자</label>
+                                <input type="text" id="writer" name="writer" class="form-control form-control-sm"
+                                    required>
+                            </div>
+                            <div class="mb-2">
+                                <label for="content" class="form-label">내용</label>
+                                <textarea id="content" name="content" class="form-control form-control-sm" rows="4"
+                                    required></textarea>
+                            </div>
+                            <div class="d-grid gap-2 mt-2">
+                                <button type="button" class="btn btn-success btn-sm" @click="regist()">등록</button>
+                                <button type="button" class="btn btn-info btn-sm" @click="getList()">목록</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- 가운데 메인 콘텐츠 -->
+            <main class="col-md-7 col-sm-8 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-header bg-white">
+                        <input type="text" name="searchKeyword" class="form-control" placeholder="검색어 입력">
+                    </div>
+                    <div class="card-body overflow-auto vh-85 px-3">
+                        <div class="list-group">
+                            <div class="list-group-item" v-for="board in boardList" :key="board.board_id" @click="getDetail(board.board_id)">
+                                <div class="post-title">{{ board.title}}</div>
+                                <div class="post-meta">{{board.writer}}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <!-- 오른쪽 디테일 폼 -->
+            <aside class="col-md-3 col-sm-12 mb-4 aside">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">게시글 상세</h5>
+                        <form id="postDetailForm" class="board-form">
+                            <input type="hidden" id="board_id" name="board_id"/>
+                            <div class="mb-2">
+                                <label for="detail-title" class="form-label">제목</label>
+                                <input type="text" id="detail-title" name="detailTitle" class="form-control form-control-sm" v-model="selectedBoard.title">
+                            </div>
+                            <div class="mb-2">
+                                <label for="detail-writer" class="form-label">작성자</label>
+                                <input type="text" id="detail-writer" name="detailWriter" class="form-control form-control-sm" v-model="selectedBoard.writer">
+                            </div>
+                            <div class="mb-2">
+                                <label for="detail-content" class="form-label">내용</label>
+                                <textarea id="detail-content" name="detailContent" class="form-control form-control-sm" rows="4"  v-model="selectedBoard.content"></textarea>
+                            </div>
+                            <div class="d-grid gap-2 mt-2">
+                                <button type="button" class="btn btn-success btn-sm" @click="update()">수정</button>
+                                <button type="button" class="btn btn-danger btn-sm" @click="del()">삭제</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <script>
+        // vue app 생성
+        const { createApp, reactive, ref } = Vue;
+
+        createApp({
+            setup(){
+                // reactive:배열, 객체 유형을 선언할 때 / ref: 숫자, 문자, 논리값과 같은 일반 데이터
+                let boardList = ref([]);
+                let selectedBoard = ref({});
+
+                // 글 목록
+                const getList = () => {
+                    $.ajax({
+                        url:"/shop/boards",
+                        type:"GET",
+                        success:(res)=>{
+                            boardList.value = res;
+                        },
+                        error:(err)=>{
+                            console.log(err);
+                        }
+                    })
+                }
+                // 글 상세
+                const getDetail = (board_id) => {
+                    $.ajax({
+                        url: "/shop/boards/"+board_id,
+                        type:"GET",
+                        success:(res)=>{
+                            selectedBoard.value = res;
+                        },
+                        error: (err)=> {
+                            console.log(err);
+                        }
+                    });
+                }
+                // 글 등록
+                const regist = () => {
+                    $.ajax({
+                        url: "/shop/boards",
+                        type: "POST",
+                        contentType: "application/json",
+                        data: JSON.stringify({
+                            title: $("#title").val(),
+                            writer: $("#writer").val(),
+                            content: $("#content").val()
+                        }),
+                        success:()=>{
+                            $("#title").val('');
+                            $("#writer").val('');
+                            $("#content").val('');
+                            getList();
+                        },
+                        error:(err)=>{
+                            console.log(err);
+                        }
+                    })
+                }
+                // 글 수정
+                const update = () => {
+                    if (!selectedBoard.value || !selectedBoard.value.board_id) {
+                        alert("게시물을 선택해주세요.");
+                        return;
+                    }
+                    $.ajax({
+                        url: "/shop/boards/"+selectedBoard.value.board_id,
+                        type:"PUT",
+                        contentType: "application/json",
+                        data: JSON.stringify(selectedBoard.value),
+                        success:()=>{
+                            alert("수정되었습니다.");
+                            selectedBoard.value = { board_id: null, title: '', writer: '', content: '' };
+                            getList();
+                        }
+                    })
+                }
+                // 글 삭제
+                const del = () => {
+                    if (!selectedBoard.value || !selectedBoard.value.board_id) {
+                        alert("게시물을 선택해주세요.");
+                        return;
+                    }
+                    $.ajax({
+                        url: "/shop/boards/"+selectedBoard.value.board_id,
+                        type:"DELETE",
+                        contentType: "application/json",
+                        success:()=>{
+                            alert("삭제되었습니다.");
+                            selectedBoard.value = { board_id: null, title: '', writer: '', content: '' };
+                            getList();
+                        }
+                    })
+                }
+                // 목록 요청
+                getList();
+
+                return {boardList, selectedBoard, getList, getDetail, regist, update,del}
+            }
+        }).mount("#app")
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+
+</html>

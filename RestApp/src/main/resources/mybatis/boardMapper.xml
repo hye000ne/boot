@@ -3,6 +3,7 @@
 <mapper namespace="com.sinse.restapp.model.BoardMapper">
     <select id="selectAll" resultType="Board">
         select * from board
+        order by board_id desc
     </select>
 
     <select id="selectById" parameterType="int" resultType="Board">
