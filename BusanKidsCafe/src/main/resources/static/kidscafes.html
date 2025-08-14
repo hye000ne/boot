@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>부산 키즈카페 목록</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .cafe-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .cafe-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container py-5" id="app">
+    <h1 class="mb-4 text-center">부산 키즈카페 목록</h1>
+
+    <div class="row g-4">
+        <div class="col-md-4"  v-for="c in kidsCafes" :key="c.cafe_nm">
+            <div class="card cafe-card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">{{ c.cafe_nm }}</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">{{ c.gugun }}</h6>
+                    <p class="card-text">{{ c.road_nm }}</p>
+                    <p class="card-text">
+                        <small class="text-muted">☎ {{ c.tel_no }}</small>
+                    </p>
+                    <a href="#" class="btn btn-primary btn-sm" @click="openMap(c.lat, c.lng)">지도보기</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<script>
+    const {createApp, reactive, ref} = Vue;
+    createApp({
+        setup(){
+            const kidsCafes = ref([]);
+
+            let getKidsCafes = ()=>{
+                $.ajax({
+                    url: "/api/kids-cafes",
+                    method: "GET",
+                    dataType: "json",
+                    success: (res) => {
+                        console.log(res);
+                        kidsCafes.value = res;
+                    }
+                })
+            }
+
+            let openMap = (lat, lng) => {
+                console.log(lat, lng);
+                const url = `https://www.google.com/maps?q=${lat},${lng}`;
+                window.open(url, "_blank", "width=800,height=600");
+            }
+
+            getKidsCafes();
+
+            return {kidsCafes, getKidsCafes, openMap};
+        }
+    }).mount("#app");
+</script>
+
+</body>
+</html>

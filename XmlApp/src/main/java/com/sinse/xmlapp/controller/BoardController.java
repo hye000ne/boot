@@ -45,8 +45,10 @@ public class BoardController {
 
     @PostMapping("/board/update")
     public String update(Board board) throws BoardException {
+        log.debug(board.toString());
         boardService.update(board);
-        return "redirect:/board/list?board_id=" + board.getBoard_id();
+        //return "redirect:/board/detail?board_id=" + board.getBoard_id();
+        return  "redirect:/board/list";
     }
 
     @GetMapping("/board/delete")
