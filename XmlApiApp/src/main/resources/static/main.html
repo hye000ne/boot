@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>한국천문연구원_특일 정보</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="container py-5" id="app">
+    <!-- 테이블 -->
+    <div class="card">
+        <div class="card-header fw-bold">
+            검색 결과
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered align-middle text-center mb-0">
+                <thead class="table-light">
+                <tr>
+                    <th>날짜</th>
+                    <th>순번</th>
+                    <th>종류</th>
+                    <th>공공기관 휴일여부</th>
+                    <th>명칭</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="spcdeInfo in spcdeInfoList">
+                    <td>{{spcdeInfo.locdate}}</td>
+                    <td>{{spcdeInfo.seq}}</td>
+                    <td>{{spcdeInfo.dateKind}}</td>
+                    <td>{{spcdeInfo.isHoliday}}</td>
+                    <td>{{spcdeInfo.dateName}}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<!-- JS -->
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const {createApp, ref} = Vue;
+    createApp({
+        setup() {
+            const spcdeInfoList = ref([]);
+
+            const getList = () => {
+                $.ajax({
+                    url: "/spcdeInfos",
+                    method: "GET",
+                    dataType: "json",
+                    success: (res) => {
+                        console.log(res);
+                        spcdeInfoList.value = res;
+                    },
+                    error: (err) => {
+                        console.log(err);
+                    }
+                });
+            }
+            getList();
+            return {spcdeInfoList, getList};
+        }
+    }).mount("#app");
+</script>
+</body>
+</html>
+
