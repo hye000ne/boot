@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>채팅방 목록</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        #aside {
+            min-width:220px;
+            border-right:2px solid #333;
+            padding:1.5rem 1rem;
+            background:#f9f9f9;
+        }
+        .room-card {
+            transition: box-shadow 0.2s;
+        }
+        .room-card:hover {
+            box-shadow:0 4px 24px rgba(0,0,0,0.14);
+        }
+        .thumbnail-img {
+            object-fit:cover;
+            height:160px;
+            width:100%;
+            border-radius:.25rem;
+        }
+
+        /*
+        팝업 디자인
+        */
+        #pop{
+            width:600px;
+            height:600px;
+            background: yellow;
+            margin: auto;
+            border:2px solid red;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+
+        }
+        #content2{
+            width:800px;
+            height:750px;
+            background:goldenrod;
+            float: left;
+        }
+        #aside2{
+            width:200px;
+            height:750px;
+            background:chartreuse;
+            float: left;
+        }
+        #aside-header{
+            width:200px;
+            height: 50px;
+            background:darkgoldenrod;
+        }
+        #aside-body{
+            width:200px;
+            height:450px;
+            background:aliceblue;
+        }
+        #aside-footer{
+            width:200px;
+            height: 50px;
+            background-color: coral;
+        }
+        #footer{
+            width:100%;
+            height:50px;
+            background:rosybrown;
+        }
+    </style>
+</head>
+<body>
+<div id="app" class="d-flex" style="height:100vh;">
+    <!--팝업 시작-->
+    <div id="pop" v-show="flag">
+        <div id="content2">
+            <div id="content-header"></div>
+            <div id="content-body"></div>
+        </div>
+        <div id="aside2">
+            <div id="aside-header"></div>
+            <div id="aside-body"></div>
+            <div id="aside-footer"></div>
+        </div>
+        <div id="footer">
+
+        </div>
+    </div>
+    <!--팝업 끝 -->
+    <aside id="aside">
+        <div th:if="${session.member}">
+            <h5 class="mb-3" th:text="|${session.member.id}님|">아이디</h5>
+            <h5 class="mb-3" th:text="${session.member.name+' 님'}">이름</h5>
+            <input type="hidden" th:value="${session.member.id}" name="userId" id="userId">
+        </div>
+        <input type="text" class="form-control mb-2" id="roomName" name="roomName" placeholder="방 제목">
+        <button class="btn btn-primary w-100 mb-3" @click="createRoom()">만들기</button>
+        <button class="btn btn-primary w-100 mb-3" @click="connect()">서버 접속</button>
+    </aside>
+
+    <main id="content" class="flex-grow-1 overflow-auto" style="padding:2rem;">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-12 col-sm-6 col-md-4">
+                    <div class="card room-card h-100" v-for="room in roomList">
+                        <img alt="썸네일" class="thumbnail-img card-img-top" />
+                        <div class="card-body">
+                            <h5 class="card-title">방 제목</h5>
+                            <p class="card-text">방 설명</p>
+                            <button class="btn btn-success w-100 mt-2" @click.prevent="openForm(room.uuid)">입장</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const {createApp, ref, reactive} = Vue;
+
+    createApp({
+        setup(){
+            let roomList=reactive([]);
+            let memberList=reactive([]);
+            let flag=ref(false);
+            let ws=null; //웹소켓 객체 선언
+
+            // 서버 요청
+            const request = (data) => {
+                if (!ws || ws.readyState !== WebSocket.OPEN) {
+                    alert("[System] 서버와 연결되어 있지 않습니다.");
+                    console.log("[System] 서버와 연결되어 있지 않습니다.");
+                    return;
+                }
+
+                ws.send(data);
+            }
+
+            const connect = () => {
+                ws = new WebSocket("ws://localhost:8888/chat/multi");
+                ws.onopen = (e) => {
+                    alert("[System] 서버 접속 성공");
+                    console.log("[System] 서버 접속 성공");
+                }
+
+                ws.onmessage = (e) => {
+                    console.log("접속과 동시에 수신받은 데이터는 " + e.data);
+
+                    const responseJson =JSON.parse(e.data);
+
+                    if(responseJson.responseType=="createRoom") {
+                        memberList.splice(0);
+
+                        //접속자 명단
+                        responseJson.memberList.forEach(member=>{
+                            memberList.push(member);
+                        });
+
+                        //채팅방 목록
+                        if(responseJson.roomList !=null) {
+                            responseJson.roomList.forEach(room => {
+                                roomList.push(room);
+                            });
+                        }
+                    }else if(responseJson.responseType == "enterRoom"){
+                        console.log(responseJson.room);
+                    }
+                }
+            }
+
+            // 방 만들기 요청
+            const createRoom = () => {
+                let payload = {
+                    requestType: "createRoom",
+                    userId: $("#userId").val(),
+                    roomName: $("#roomName").val()
+                }
+
+                console.log(payload);
+
+                request(JSON.stringify(payload));
+            }
+
+            //채팅방 입장하기
+            const openForm = (roomId) => {
+                flag.value=!flag.value;
+
+                let payload={
+                    requestType:"enterRoom",
+                    uuid:roomId
+                }
+                request(JSON.stringify(payload));
+            }
+
+            return {roomList, connect, request, createRoom, openForm};
+        }
+    }).mount("#app");
+
+</script>
+</body>
+</html>

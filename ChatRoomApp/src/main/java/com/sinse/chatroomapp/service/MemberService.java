@@ -6,5 +6,5 @@ import java.util.List;
 
 public interface MemberService {
     public List<Member> selectAll();
-    public Member login(Member member);
+    public Member login(String id, String pwd);
 }

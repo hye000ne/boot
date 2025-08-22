@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Spring WebSocket 채팅</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        body {
+            padding: 2rem;
+            background-color: #f8f9fa;
+        }
+        #app {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .chat-container, .room-container {
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .chat-log {
+            height: 250px;
+            overflow-y: auto;
+            border: 1px solid #dee2e6;
+            border-radius: 0.375rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background-color: #fff;
+        }
+        .chat-message {
+            margin-bottom: 0.75rem;
+            word-break: break-word;
+        }
+        .chat-message.mine {
+            text-align: right;
+            color: #0d6efd;
+            font-weight: 600;
+        }
+        .chat-message.other {
+            text-align: left;
+            color: #212529;
+        }
+        .chat-sender {
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.2rem;
+        }
+        .chat-content {
+            font-size: 1rem;
+        }
+        .user-list li {
+            list-style-type: none;
+            background: #e9ecef;
+            margin-bottom: 0.3rem;
+            padding: 0.4rem 0.6rem;
+            border-radius: 0.375rem;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <h2 class="mb-4 text-center">Spring WebSocket 기반 채팅</h2>
+    
+    <div v-if="!isConnect" class="d-flex flex-column align-items-center gap-3">
+        <input type="text" placeholder="사용자명 입력" v-model="username" @keyup.enter="connect" class="form-control w-75" />
+        <button type="button" @click="connect" class="btn btn-primary w-50">웹 소켓 서버 접속</button>
+    </div>
+    
+    <div v-else>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <p class="mb-0"><b>{{username}}</b> 님 접속 중</p>
+            <button type="button" @click="disconnect" class="btn btn-outline-danger btn-sm">접속 종료</button>
+        </div>
+        
+        <!-- 채팅 영역 -->
+        <section class="chat-container">
+            <div class="chat-log" v-if="chatLog.length">
+                <div v-for="(msg, idx) in chatLog" :key="idx" :class="['chat-message', msg.isMine ? 'mine' : 'other']">
+                    <div v-if="!msg.isMine" class="chat-sender">({{msg.data.sender}})</div>
+                    <div class="chat-content">{{msg.data.content}}</div>
+                </div>
+            </div>
+            <div v-else class="mb-3 text-center text-muted" style="height: 250px; line-height: 250px;">대화가 없습니다.</div>
+            <div class="input-group mt-3">
+                <input type="text" placeholder="메시지를 입력하세요." v-model="message" @keyup.enter="sendMessage" class="form-control" />
+                <button type="button" @click="sendMessage" class="btn btn-primary">전송</button>
+            </div>
+        </section>
+        
+        <!-- 방 생성 영역 -->
+        <section class="room-container">
+            <h5>새 방 만들기</h5>
+            <div class="input-group mt-3">
+                <input type="text" placeholder="방 이름을 입력하세요." v-model="roomName" @keyup.enter="createRoom" class="form-control" />
+                <button type="button" @click="createRoom" class="btn btn-primary">방 만들기</button>
+            </div>
+        </section>
+        
+        <!-- 접속자 목록 -->
+        <div class="mt-4">
+            <h3>총 접속자</h3>
+            <ul class="user-list ps-0">
+                <li v-for="user in users" :key="user">{{user}}</li>
+            </ul>
+        </div>
+        
+        <!-- 방 목록 -->
+        <div v-if="rooms.length > 0" class="mt-4">
+            <h3>방 목록</h3>
+            <ul class="user-list ps-0 mb-4">
+                <li v-for="room in rooms" :key="room.roomId">
+                    {{ room.roomName }} (참여자 수 : {{ room.users.length }})
+                    <button type="button" @click="enterRoom(room.roomId)" class="btn btn-sm btn-outline-primary">입장</button>
+                    <button type="button" @click="leaveRoom(room.roomId)" class="btn btn-sm btn-outline-danger">퇴장</button>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@5.0.0/bundles/stomp.umd.min.js"></script>
+<script>
+    const { createApp, ref } = Vue;
+    
+    createApp({
+        setup() {
+        
+        }
+    }).mount("#app");
+</script>
+</body>
+</html>

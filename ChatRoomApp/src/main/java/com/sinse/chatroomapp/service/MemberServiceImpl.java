@@ -21,11 +21,13 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public Member login(Member member) {
-        log.info("serviceImpl login called");
-        log.info("serviceImpl member={}", member);
-
+    public Member login(String id, String pwd) {
+        Member member = new Member();
+        member.setId(id);
+        member.setPwd(pwd);
         Member login = memberMapper.login(member);
+
+        if(login == null) throw new MemberException("아이디와 비밀번호를 다시 입력해주세요.");
 
         return login;
     }

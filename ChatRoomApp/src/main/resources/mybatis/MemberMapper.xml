@@ -7,7 +7,7 @@
 
     <select id="login" parameterType="Member" resultType="Member">
         select * from member
-        where member_id = #{memberId}
+        where id = #{id}
         and pwd = #{pwd}
     </select>
 </mapper>
